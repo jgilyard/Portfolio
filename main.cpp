@@ -208,15 +208,19 @@ switch(single){
         }
     }
 }
-if(answer!="P" || answer != "S")
-{
-exit(0);
-}
+//if(answer!="P" || answer != "S")
+//{
+//exit(0);
+//}
 //else{
 //exit(0);
 //}
 cout << "Would you Like to run an additional Regression? If so type Y; anything else exits"<<endl;
 cin >>cont;
+if(cont!="Y")
+    {
+    exit(0);
+    }
 }
 /*
 char * info[3];
