@@ -11,6 +11,7 @@
 #include <string>
 #include <time.h>
 #include <iomanip>
+#include <math.h>
 #define STOCK_SIZE 100 
 #define PAGE_LENGTH 25
 #define DEFAULT 1
@@ -24,6 +25,8 @@ void current_single_csv_rip(string python_sub, stock user_port);
 double covariance(stock &stock_1, stock &stock_2);
 double ** covariance_matrix(portfolio, int);
 void matrix_save(portfolio, double**, int);
+double std_dev(stock local, int port_length);
+double ** correlation_matrix(portfolio local, double ** covariance_matrix, int port_length);
 int main(int argc, char* argv[])
 {
 /*stock delcaration order stock
@@ -100,8 +103,17 @@ switch(market){
         {
         user_matrix[i] = new double[port_length];
         }
+        cout <<"COMPUTING COVARIANCE MATRIX"<<endl;
         user_matrix = covariance_matrix(user_port, port_length);
         matrix_save(user_port, user_matrix, port_length);
+        double ** user_correlation_matrix = new double *[port_length];
+        for(int i = 0; i < port_length; i++)
+        {
+        user_correlation_matrix[i] = new double[port_length];
+        }
+        cout <<"COMPUTING CORRELATION MATRIX"<<endl;
+        user_correlation_matrix = correlation_matrix(user_port, user_matrix, port_length);
+        matrix_save(user_port, user_correlation_matrix, port_length);
         break;
         }
     case 2:
@@ -134,13 +146,24 @@ switch(market){
             cout<<"Main Price History: " <<user_port.group[0].price_history[i]<<endl;
         }
     */
+
         double ** user_matrix = new double *[port_length];
         for(int i = 0; i < port_length; i++)
         {
         user_matrix[i] = new double[port_length];
         }
+        cout <<"COMPUTING COVARIANCE MATRIX"<<endl;
         user_matrix = covariance_matrix(user_port, port_length);
         matrix_save(user_port, user_matrix, port_length);
+        double ** user_correlation_matrix = new double *[port_length];
+        for(int i = 0; i < port_length; i++)
+        {
+        user_correlation_matrix[i] = new double[port_length];
+        }
+        cout <<"COMPUTING CORRELATION MATRIX"<<endl;
+        user_correlation_matrix = correlation_matrix(user_port, user_matrix, port_length);
+        matrix_save(user_port, user_correlation_matrix, port_length);
+
         break;
         }
     }
@@ -176,6 +199,7 @@ switch(single){
             cout<<"beta:"<<LOCAL_OLS.get_beta()<< "alpha:" << LOCAL_OLS.get_alpha()<<endl;
             cout <<"Your Output graph will be "<< local.get_symbol()<<".png"<<endl;
             OLS_graphing(local,LOCAL_OLS);
+            cout <<endl;
             }
         break;
         }
@@ -203,6 +227,7 @@ switch(single){
             cout<<"beta:"<<LOCAL_OLS.get_beta()<< "alpha:" << LOCAL_OLS.get_alpha()<<endl;
             cout <<"Your Output graph will be "<< local.get_symbol()<<".png"<<endl;
             OLS_graphing(local,LOCAL_OLS);
+            cout <<endl;
             }
         break;
         }
@@ -231,10 +256,63 @@ info[2] = "45";
 //cout << info[0] <<endl;
 cout <<"One More Time"<<endl;
 }
+double ** correlation_matrix(portfolio local, double ** covariance_matrix, int port_length)
+{
+double ** matrix = new double*[port_length];
+for( int i = 0; i<port_length; i++)
+    {
+    matrix[i]= new double[port_length];
+    }
+for( int i = 0; i < port_length; i ++)
+    {
+    for( int j = 0; j < port_length; j++)
+        {
+        double dev_1;
+        double dev_2; 
+        double joint_dev;
+        dev_1 = std_dev(local.group[i], port_length);
+        dev_2 = std_dev(local.group[j], port_length);
+        joint_dev = dev_1 * dev_2;
+        matrix[i][j] = (covariance_matrix[i][j]/joint_dev);
+        }
+    }
+return matrix;
+}
+double std_dev(stock local, int port_length)
+{
+double mean = 0, sum = 0;
+double temp[100]; 
+for(int i = 0; i < 100; i++)
+    {
+    temp[i] = local.price_history[i];
+    }
+for( int i = 0; i < 100; i++)
+    {
+    sum = sum + local.price_history[i];
+    }
+mean = (sum / 99);
+cout <<mean;
+for( int i = 0; i < 99; i ++)
+    {
+    double holder;
+    holder = temp[i] - mean;
+    temp[i] = holder*holder;
+    }
+mean = 0, sum = 0;
+for( int i = 0; i < port_length; i++)
+    {
+    sum = sum +temp[i];
+    }
+mean = (sum/port_length);
+mean = sqrt(mean);
+cout <<mean <<endl;
+return mean;
+
+}
 void matrix_save(portfolio local, double ** matrix, int port_length)
 {
 string file_name;
-cout << "what would you like your Co_variance Matrix file name to be?";
+cout << "what would you like your Matrix file name to be?";
 cin >>file_name;
 file_name = file_name +".csv";
 cout << "Your File will be saved as: " <<file_name<< endl; 
