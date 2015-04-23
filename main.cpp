@@ -48,6 +48,10 @@ for( int i = 0; i <STOCK_SIZE; i++)
 cout <<IBM.price_history[i]<<endl;
 }
 */
+string cont;
+cont = "Y";
+while(cont == "Y")
+{
 cout <<"Would you Like to Enter the Porfolio Generator or the Single Stock Analyzer"<<endl;
 cout <<"Press P for Portfolio and S for Single Stock; Any other value will exit"<<endl;
 string answer; 
@@ -204,11 +208,16 @@ switch(single){
         }
     }
 }
-else{
+if(answer!="P" || answer != "S")
+{
 exit(0);
 }
-
-
+//else{
+//exit(0);
+//}
+cout << "Would you Like to run an additional Regression? If so type Y; anything else exits"<<endl;
+cin >>cont;
+}
 /*
 char * info[3];
 info[0] = "IBM";
